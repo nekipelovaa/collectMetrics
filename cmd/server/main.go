@@ -57,15 +57,15 @@ func addMetric(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	w.WriteHeader(http.StatusOK)
+	//w.Write([]byte("gut"))
 }
 
 func main() {
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("POST /update/{type}/{name}/{value}/", addMetric)
-	err := http.ListenAndServe(":8080", mux)
+	mux.HandleFunc(`POST /update/{type}/{name}/{value}`, addMetric)
+	err := http.ListenAndServe(`:8080`, mux)
 	if err != nil {
 		panic(err)
 	}
