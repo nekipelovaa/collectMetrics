@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -64,13 +65,9 @@ func (c *MetricsCollection) CollectMetrics() {
 }
 
 func main() {
-	addr := "localhost:8080"
-	reportInterval := 10
-	pollInterval := 2
-
-	addr = *flag.String("a", addr, "адрес HTTP сервера")
-	reportInterval = *flag.Int("r", reportInterval, "интервал в секундах отправки метрик")
-	pollInterval = *flag.Int("p", pollInterval, "интервал в секундах сбора метрик")
+	addr := *flag.String("a", "http://localhost:8080", "адрес HTTP сервера")
+	reportInterval := *flag.Int("r", 10, "интервал в секундах отправки метрик")
+	pollInterval := *flag.Int("p", 2, "интервал в секундах сбора метрик")
 	flag.Parse()
 
 	if flag.NArg() > 0 {
@@ -82,6 +79,7 @@ func main() {
 	if addrEnv != "" {
 		addr = addrEnv
 	}
+	addr = strings.TrimPrefix(addr, `http://`)
 
 	reportIntervalEnv, err := strconv.Atoi(os.Getenv("REPORT_INTERVAL"))
 	if err == nil {

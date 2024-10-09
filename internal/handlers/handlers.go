@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/nekipelovaa/collectMetrics/internal/storage"
 )
@@ -62,7 +63,7 @@ func GetMetric(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("Content-Type", "text/plain")
-		_, err := w.Write([]byte(strconv.FormatFloat(10.970, 'f', -1, 64), v))
+		_, err := w.Write([]byte(strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.3f", v), "0"), ".")))
 		if err != nil {
 			fmt.Println(err)
 		}

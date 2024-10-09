@@ -11,15 +11,14 @@ import (
 )
 
 func main() {
-	addr := "localhost:8080"
-	addr = *flag.String("a", addr, "адрес HTTP сервера")
+	addr := *flag.String("a", "localhost:8080", "адрес HTTP сервера")
 	flag.Parse()
 	if flag.NArg() > 0 {
 		fmt.Println("Неизвестный флаг:", flag.Args())
 		return
 	}
-	addrEnv := os.Getenv("ADDRESS")
-	if addrEnv != "" {
+	addrEnv, ok := os.LookupEnv("ADDRESS")
+	if ok {
 		addr = addrEnv
 	}
 
