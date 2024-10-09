@@ -1,9 +1,9 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
-
 	"runtime"
 	"sync"
 	"time"
@@ -62,31 +62,39 @@ func (c *MetricsCollection) CollectMetrics() {
 }
 
 func main() {
-	pollInterval := 2
-	reportInterval := 10
+	addr := flag.String("a", "localhost:8080", "адрес HTTP сервера")
+	reportInterval := flag.Int("r", 10, "интервал в секундах отправки метрик")
+	pollInterval := flag.Int("p", 2, "интервал в секундах сбора метрик")
+	flag.Parse()
+
+	if flag.NArg() > 0 {
+		fmt.Println("Неизвестный флаг:", flag.Args())
+		return
+	}
+
 	m := MetricsCollectionInit()
 
 	client := resty.New()
 
 	go func() {
 		for {
-			time.Sleep(time.Duration(pollInterval) * time.Second)
+			time.Sleep(time.Duration(*pollInterval) * time.Second)
 			m.CollectMetrics()
 
 		}
 	}()
 	for {
-		time.Sleep(time.Duration(reportInterval) * time.Second)
+		time.Sleep(time.Duration(*reportInterval) * time.Second)
 		m.Lock()
 		for k, v := range m.gougeMetrics {
-			url := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%v", k, v)
+			url := fmt.Sprintf("http://%s/update/gauge/%s/%v", *addr, k, v)
 			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 		for k, v := range m.counterMetrics {
-			url := fmt.Sprintf("http://localhost:8080/update/counter/%s/%v", k, v)
+			url := fmt.Sprintf("http://%s/update/counter/%s/%v", *addr, k, v)
 			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)
