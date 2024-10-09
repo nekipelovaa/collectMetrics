@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -11,11 +12,6 @@ var m *storage.MemStorage = storage.NewStorage()
 
 func AddMetric(w http.ResponseWriter, r *http.Request) {
 	name := r.PathValue("name")
-
-	if name == "" {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
 
 	switch r.PathValue("type") {
 	case "gauge":
@@ -40,32 +36,49 @@ func AddMetric(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-// var AddMetric func () http.Handler = http.HandlerFunc(func AddMetric(w http.ResponseWriter, r *http.Request) {
-// 	name := r.PathValue("name")
+func GetMetric(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	typeMetric := r.PathValue("type")
 
-// 	if name == "" {
-// 		w.WriteHeader(http.StatusNotFound)
-// 		return
-// 	}
+	switch typeMetric {
+	case "counter":
+		v, ok := m.GetCounterMetric(name)
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Add("Content-Type", "text/plain")
+		_, err := w.Write([]byte(fmt.Sprintf("%d", v)))
+		if err != nil {
+			fmt.Println(err)
+		}
+		return
+	case "gauge":
+		v, ok := m.GetGaugeMetric(name)
+		if !ok {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Header().Add("Content-Type", "text/plain")
+		_, err := w.Write([]byte(fmt.Sprintf("%f", v)))
+		if err != nil {
+			fmt.Println(err)
+		}
+		return
+	default:
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-// 	switch r.PathValue("type") {
-// 	case "gauge":
-// 		val, err := strconv.ParseFloat(r.PathValue("value"), 64)
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			return
-// 		}
-// 		m.addGaugeMetric(name, val)
-// 	case "counter":
-// 		val, err := strconv.ParseInt(r.PathValue("value"), 10, 64)
-// 		if err != nil {
-// 			w.WriteHeader(http.StatusBadRequest)
-// 			return
-// 		}
-// 		m.addCounterMetric(name, val)
-// 	default:
-// 		w.WriteHeader(http.StatusBadRequest)
-// 		return
-// 	}
-// 	w.WriteHeader(http.StatusOK)
-// })
+}
+
+func GetAllMetrics(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Add("Content-Type", "text/plain")
+	_, err := w.Write([]byte(m.GetAllMetricsToStr()))
+	if err != nil {
+		fmt.Println(err)
+	}
+}

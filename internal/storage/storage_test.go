@@ -9,12 +9,6 @@ func TestNewStorage(t *testing.T) {
 	if m == nil {
 		t.Errorf("Ожидается, что NewStorage вернет ненулевой экземпляр MemStorage")
 	}
-	// if len(m.gauge) != 0 {
-	// 	t.Errorf("Ожидалось, что мапа Gauge будет пустой, получено %v", m.gauge)
-	// }
-	// if len(m.counter) != 0 {
-	// 	t.Errorf("Ожидалось, что мапа Counter будет пустой, получено %v", m.counter)
-	// }
 }
 
 func TestAddGaugeMetric(t *testing.T) {

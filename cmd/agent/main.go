@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"math/rand"
-	"net/http"
+
 	"runtime"
 	"sync"
 	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type MetricsCollection struct {
@@ -56,7 +58,6 @@ func (c *MetricsCollection) CollectMetrics() {
 
 	c.gougeMetrics["RandomValue"] = rand.Float64() * 100
 	c.counterMetrics["PollCount"] += 1
-	//fmt.Printf("%v", c.counterMetrics["PollCount"])
 	c.Unlock()
 }
 
@@ -64,6 +65,8 @@ func main() {
 	pollInterval := 2
 	reportInterval := 10
 	m := MetricsCollectionInit()
+
+	client := resty.New()
 
 	go func() {
 		for {
@@ -77,19 +80,17 @@ func main() {
 		m.Lock()
 		for k, v := range m.gougeMetrics {
 			url := fmt.Sprintf("http://localhost:8080/update/gauge/%s/%v", k, v)
-			resp, err := http.Post(url, "text/plain", nil)
+			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)
 			}
-			resp.Body.Close()
 		}
 		for k, v := range m.counterMetrics {
 			url := fmt.Sprintf("http://localhost:8080/update/counter/%s/%v", k, v)
-			resp, err := http.Post(url, "text/plain", nil)
+			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)
 			}
-			resp.Body.Close()
 		}
 		m.Unlock()
 	}
