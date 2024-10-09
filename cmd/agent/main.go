@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"os"
 	"runtime"
+	"strconv"
 	"sync"
 	"time"
 
@@ -62,9 +64,28 @@ func (c *MetricsCollection) CollectMetrics() {
 }
 
 func main() {
-	addr := flag.String("a", "localhost:8080", "адрес HTTP сервера")
-	reportInterval := flag.Int("r", 10, "интервал в секундах отправки метрик")
-	pollInterval := flag.Int("p", 2, "интервал в секундах сбора метрик")
+	addr := "localhost:8080"
+	reportInterval := 10
+	pollInterval := 2
+
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
+		addr = addrEnv
+	}
+
+	reportIntervalEnv, err := strconv.Atoi(os.Getenv("REPORT_INTERVAL"))
+	if err == nil {
+		reportInterval = reportIntervalEnv
+	}
+
+	pollIntervalEnv, err := strconv.Atoi(os.Getenv("POLL_INTERVAL"))
+	if err == nil {
+		pollInterval = pollIntervalEnv
+	}
+
+	addr = *flag.String("a", addr, "адрес HTTP сервера")
+	reportInterval = *flag.Int("r", reportInterval, "интервал в секундах отправки метрик")
+	pollInterval = *flag.Int("p", pollInterval, "интервал в секундах сбора метрик")
 	flag.Parse()
 
 	if flag.NArg() > 0 {
@@ -78,23 +99,23 @@ func main() {
 
 	go func() {
 		for {
-			time.Sleep(time.Duration(*pollInterval) * time.Second)
+			time.Sleep(time.Duration(pollInterval) * time.Second)
 			m.CollectMetrics()
 
 		}
 	}()
 	for {
-		time.Sleep(time.Duration(*reportInterval) * time.Second)
+		time.Sleep(time.Duration(reportInterval) * time.Second)
 		m.Lock()
 		for k, v := range m.gougeMetrics {
-			url := fmt.Sprintf("http://%s/update/gauge/%s/%v", *addr, k, v)
+			url := fmt.Sprintf("http://%s/update/gauge/%s/%v", addr, k, v)
 			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)
 			}
 		}
 		for k, v := range m.counterMetrics {
-			url := fmt.Sprintf("http://%s/update/counter/%s/%v", *addr, k, v)
+			url := fmt.Sprintf("http://%s/update/counter/%s/%v", addr, k, v)
 			_, err := client.R().Post(url)
 			if err != nil {
 				fmt.Println(err)

@@ -4,13 +4,19 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/nekipelovaa/collectMetrics/internal/handlers"
 )
 
 func main() {
-	addr := flag.String("a", "localhost:8080", "адрес HTTP сервера")
+	addr := "localhost:8080"
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
+		addr = addrEnv
+	}
+	addr = *flag.String("a", addr, "адрес HTTP сервера")
 	flag.Parse()
 
 	if flag.NArg() > 0 {
@@ -22,7 +28,7 @@ func main() {
 	r.Post("/update/{type}/{name}/{value}", handlers.AddMetric)
 	r.Get("/value/{type}/{name}", handlers.GetMetric)
 	r.Get("/", handlers.GetAllMetrics)
-	err := http.ListenAndServe(*addr, r)
+	err := http.ListenAndServe(addr, r)
 	if err != nil {
 		panic(err)
 	}
