@@ -62,7 +62,7 @@ func GetMetric(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusOK)
 		w.Header().Add("Content-Type", "text/plain")
-		_, err := w.Write([]byte(fmt.Sprintf("%.3f", v)))
+		_, err := w.Write([]byte(strconv.FormatFloat(10.970, 'f', -1, 64), v))
 		if err != nil {
 			fmt.Println(err)
 		}
