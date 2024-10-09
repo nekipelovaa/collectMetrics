@@ -12,16 +12,15 @@ import (
 
 func main() {
 	addr := "localhost:8080"
-	addrEnv := os.Getenv("ADDRESS")
-	if addrEnv != "" {
-		addr = addrEnv
-	}
 	addr = *flag.String("a", addr, "адрес HTTP сервера")
 	flag.Parse()
-
 	if flag.NArg() > 0 {
 		fmt.Println("Неизвестный флаг:", flag.Args())
 		return
+	}
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
+		addr = addrEnv
 	}
 
 	r := chi.NewRouter()

@@ -68,6 +68,16 @@ func main() {
 	reportInterval := 10
 	pollInterval := 2
 
+	addr = *flag.String("a", addr, "адрес HTTP сервера")
+	reportInterval = *flag.Int("r", reportInterval, "интервал в секундах отправки метрик")
+	pollInterval = *flag.Int("p", pollInterval, "интервал в секундах сбора метрик")
+	flag.Parse()
+
+	if flag.NArg() > 0 {
+		fmt.Println("Неизвестный флаг:", flag.Args())
+		return
+	}
+
 	addrEnv := os.Getenv("ADDRESS")
 	if addrEnv != "" {
 		addr = addrEnv
@@ -81,16 +91,6 @@ func main() {
 	pollIntervalEnv, err := strconv.Atoi(os.Getenv("POLL_INTERVAL"))
 	if err == nil {
 		pollInterval = pollIntervalEnv
-	}
-
-	addr = *flag.String("a", addr, "адрес HTTP сервера")
-	reportInterval = *flag.Int("r", reportInterval, "интервал в секундах отправки метрик")
-	pollInterval = *flag.Int("p", pollInterval, "интервал в секундах сбора метрик")
-	flag.Parse()
-
-	if flag.NArg() > 0 {
-		fmt.Println("Неизвестный флаг:", flag.Args())
-		return
 	}
 
 	m := MetricsCollectionInit()
