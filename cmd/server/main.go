@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -13,10 +14,10 @@ func main() {
 	addr := "localhost:8080"
 	addr = *flag.String("a", addr, "адрес HTTP сервера")
 	flag.Parse()
-	// if flag.NArg() > 0 {
-	// 	fmt.Println("Неизвестный флаг:", flag.Args())
-	// 	return
-	// }
+	if flag.NArg() > 0 {
+		fmt.Println("Неизвестный флаг:", flag.Args())
+		return
+	}
 	addrEnv := os.Getenv("ADDRESS")
 	if addrEnv != "" {
 		addr = addrEnv

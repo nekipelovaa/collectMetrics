@@ -73,10 +73,10 @@ func main() {
 	pollInterval = *flag.Int("p", pollInterval, "интервал в секундах сбора метрик")
 	flag.Parse()
 
-	// if flag.NArg() > 0 {
-	// 	fmt.Println("Неизвестный флаг:", flag.Args())
-	// 	return
-	// }
+	if flag.NArg() > 0 {
+		fmt.Println("Неизвестный флаг:", flag.Args())
+		return
+	}
 
 	addrEnv := os.Getenv("ADDRESS")
 	if addrEnv != "" {
