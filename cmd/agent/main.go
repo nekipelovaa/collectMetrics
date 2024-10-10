@@ -65,15 +65,15 @@ func (c *MetricsCollection) CollectMetrics() {
 }
 
 func main() {
-	addr := *flag.String("a", "http://localhost:8080", "адрес HTTP сервера")
-	reportInterval := *flag.Int("r", 10, "интервал в секундах отправки метрик")
-	pollInterval := *flag.Int("p", 2, "интервал в секундах сбора метрик")
+	var (
+		addr           string
+		reportInterval int
+		pollInterval   int
+	)
+	flag.StringVar(&addr, "a", "localhost:8080", "адрес HTTP сервера")
+	flag.IntVar(&reportInterval, "r", 10, "интервал в секундах отправки метрик")
+	flag.IntVar(&pollInterval, "p", 2, "интервал в секундах сбора метрик")
 	flag.Parse()
-
-	if flag.NArg() > 0 {
-		fmt.Println("Неизвестный флаг:", flag.Args())
-		return
-	}
 
 	addrEnv := os.Getenv("ADDRESS")
 	if addrEnv != "" {

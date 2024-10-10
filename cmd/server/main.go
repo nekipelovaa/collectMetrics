@@ -11,14 +11,12 @@ import (
 )
 
 func main() {
-	addr := *flag.String("a", "localhost:8080", "адрес HTTP сервера")
+	var addr string
+	flag.StringVar(&addr, "a", "localhost:8080", "адрес HTTP сервера")
 	flag.Parse()
-	if flag.NArg() > 0 {
-		fmt.Println("Неизвестный флаг:", flag.Args())
-		return
-	}
-	addrEnv, ok := os.LookupEnv("ADDRESS")
-	if ok {
+
+	addrEnv := os.Getenv("ADDRESS")
+	if addrEnv != "" {
 		addr = addrEnv
 	}
 
@@ -27,6 +25,7 @@ func main() {
 	r.Get("/value/{type}/{name}", handlers.GetMetric)
 	r.Get("/", handlers.GetAllMetrics)
 	err := http.ListenAndServe(addr, r)
+	fmt.Println(addr)
 	if err != nil {
 		panic(err)
 	}
