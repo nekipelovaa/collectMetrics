@@ -7,7 +7,9 @@ import (
 	"os"
 
 	"github.com/go-chi/chi/v5"
+
 	"github.com/nekipelovaa/collectMetrics/internal/handlers"
+	lh "github.com/nekipelovaa/collectMetrics/internal/logginghandlers"
 )
 
 func main() {
@@ -21,9 +23,9 @@ func main() {
 	}
 
 	r := chi.NewRouter()
-	r.Post("/update/{type}/{name}/{value}", handlers.AddMetric)
-	r.Get("/value/{type}/{name}", handlers.GetMetric)
-	r.Get("/", handlers.GetAllMetrics)
+	r.Post("/update/{type}/{name}/{value}", lh.WithLogging(handlers.AddMetric))
+	r.Get("/value/{type}/{name}", lh.WithLogging(handlers.GetMetric))
+	r.Get("/", lh.WithLogging(handlers.GetAllMetrics))
 	err := http.ListenAndServe(addr, r)
 	fmt.Println(addr)
 	if err != nil {
