@@ -1,4 +1,4 @@
-package loggingHandlers
+package logginghandlers
 
 import (
 	"net/http"

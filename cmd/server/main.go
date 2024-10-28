@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/nekipelovaa/collectMetrics/internal/handlers"
-	lh "github.com/nekipelovaa/collectMetrics/internal/loggingHandlers"
+	lh "github.com/nekipelovaa/collectMetrics/internal/logginghandlers"
 )
 
 func main() {
